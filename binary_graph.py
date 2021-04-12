@@ -1,21 +1,6 @@
 # Copyright (C) 2021, Grzegorz Stefański - All Rights Reserved
 
 import numpy as np
-
-import functools
-import time
-
-def timer(func):
-    @functools.wraps(func)
-    def wrapper_timer(*args, **kwargs):
-        tic = time.perf_counter()
-        value = func(*args, **kwargs)
-        toc = time.perf_counter()
-        elapsed_time = toc - tic
-        print(f"Elapsed time: {elapsed_time:0.4f} seconds")
-        return value
-    return wrapper_timer
-
 class BinaryGraph():
     '''
         BinaryGraph class
@@ -67,7 +52,6 @@ class BinaryGraph():
         if coordinates in self.nodes:
             self.leafs.append(self.nodes[coordinates])
 
-    # @timer
     def addRoot(self, x, y):
         '''
             addRoot method
@@ -178,50 +162,33 @@ class BinaryGraph():
         
         parent_coordinates = str(parent_x) + "," + str(parent_y)
         
-        # start = time.time()
         if parent_coordinates in self.roots:
             parents.append(self.roots[parent_coordinates])
-        # end = time.time()
-        # print("parent in roots", end - start)
 
-        # start = time.time()
         if parent_coordinates in self.nodes:
             parents.append(self.nodes[parent_coordinates])
-        # end = time.time()
-        # print("parent in nodes", end - start)
 
         if len(parents) == 0:
             return None
 
         node_coordinates = str(node_x) + "," + str(node_y)
 
-        # start = time.time()
         if node_coordinates in self.nodes:
             node = self.nodes[node_coordinates]
         else:
             node = Node(parents[0], self, node_x, node_y)
-        # end = time.time()
-        # print("node in nodes", end - start)
 
-        # start = time.time()
         for parent in parents:
             for it in range( len(parent.letter_x) ):
                 node.addLetters(parent.letter_x[it] + letter_x, parent.letter_y[it] + letter_y)
             
             parent.regiserChild(node)
-        # end = time.time()
-        # print("add child", end - start)
 
-    
-        # start = time.time()
         if not self.retainGraph:
             diagonal_coordinates = str(node_x - 1) + "," + str(node_y - 1)
             
             if diagonal_coordinates in self.nodes and len(self.nodes[diagonal_coordinates].children) != 0:
                 del self.nodes[diagonal_coordinates]
-
-        # end = time.time()
-        # print("del", end - start)
 
         return node
 

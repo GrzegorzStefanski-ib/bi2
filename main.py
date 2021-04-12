@@ -175,17 +175,8 @@ def main(**kwargs):
 
     '''
 
-    # print(kwargs)
-    # ali = Aligator()
-
-    # Aligator("TTACG", "TTCG", 1, -0.5, -1).forward()
-    # Aligator("TTCG", "TTACG", 1, -0.5, -1).forward()
-    # Aligator("TTACG", "TTCG", 1, -1, -2).forward()
-    # Aligator("GAAC", "CAAGAC", 1, -1, -2).forward()
     NeedlemanWunch(**kwargs).forward()
-    # dp = DotPlot( sys.argv[1:] )
-    # p = dp.dot_plot()
-    # dp.plot(p)
+
 
 
 if __name__ == "__main__":
