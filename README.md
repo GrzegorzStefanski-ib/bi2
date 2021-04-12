@@ -1,1 +1,1 @@
-# bi2
+# Bioinformatyka - zadanie 2
