@@ -1,0 +1,9 @@
+Sequence 1: ACGCGCG
+Sequence 2: ACACGCA
+Match: 5
+Mismatch: 2
+Gap: 0
+Score: 3
+Length: 7
+Identity: 5/7 (71%)
+Gaps: 0/7 (0%)

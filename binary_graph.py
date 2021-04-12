@@ -2,13 +2,27 @@
 
 import numpy as np
 
+import functools
+import time
+
+def timer(func):
+    @functools.wraps(func)
+    def wrapper_timer(*args, **kwargs):
+        tic = time.perf_counter()
+        value = func(*args, **kwargs)
+        toc = time.perf_counter()
+        elapsed_time = toc - tic
+        print(f"Elapsed time: {elapsed_time:0.4f} seconds")
+        return value
+    return wrapper_timer
+
 class BinaryGraph():
     '''
         BinaryGraph class
 
         Data structure class. Specific type of binary tree 
         where every node can have multiple parents as well 
-        as childrens.
+        as children.
     '''
 
     def __init__(self, seq1, seq2, retainGraph):
@@ -53,6 +67,7 @@ class BinaryGraph():
         if coordinates in self.nodes:
             self.leafs.append(self.nodes[coordinates])
 
+    # @timer
     def addRoot(self, x, y):
         '''
             addRoot method
@@ -140,7 +155,7 @@ class BinaryGraph():
         if coordinates not in self.nodes:
             self.nodes[coordinates] = node
 
-    
+    # @timer
     def addNode(self, node_x, node_y, parent_x, parent_y, letter_x, letter_y):
         '''
             addNode method
@@ -163,30 +178,50 @@ class BinaryGraph():
         
         parent_coordinates = str(parent_x) + "," + str(parent_y)
         
+        # start = time.time()
         if parent_coordinates in self.roots:
             parents.append(self.roots[parent_coordinates])
+        # end = time.time()
+        # print("parent in roots", end - start)
 
+        # start = time.time()
         if parent_coordinates in self.nodes:
             parents.append(self.nodes[parent_coordinates])
+        # end = time.time()
+        # print("parent in nodes", end - start)
+
+        if len(parents) == 0:
+            return None
 
         node_coordinates = str(node_x) + "," + str(node_y)
 
+        # start = time.time()
         if node_coordinates in self.nodes:
             node = self.nodes[node_coordinates]
         else:
             node = Node(parents[0], self, node_x, node_y)
+        # end = time.time()
+        # print("node in nodes", end - start)
 
+        # start = time.time()
         for parent in parents:
             for it in range( len(parent.letter_x) ):
                 node.addLetters(parent.letter_x[it] + letter_x, parent.letter_y[it] + letter_y)
             
             parent.regiserChild(node)
+        # end = time.time()
+        # print("add child", end - start)
 
+    
+        # start = time.time()
         if not self.retainGraph:
             diagonal_coordinates = str(node_x - 1) + "," + str(node_y - 1)
             
-            if diagonal_coordinates in self.nodes and len(self.nodes[diagonal_coordinates].childrens) != 0:
+            if diagonal_coordinates in self.nodes and len(self.nodes[diagonal_coordinates].children) != 0:
                 del self.nodes[diagonal_coordinates]
+
+        # end = time.time()
+        # print("del", end - start)
 
         return node
 
@@ -194,7 +229,7 @@ class BinaryGraph():
         '''
             getPaths method
 
-            Finds and prints determinated paths in respect to the specified mode.
+            Finds and prints determined paths in respect to the specified mode.
 
             Input:
                 mode: string - Mode for path finding. One of:
@@ -204,7 +239,7 @@ class BinaryGraph():
                 gap_score: float - score for gap.
 
             Output:
-                None
+                First registered path string
         '''
 
         l1 = len( self.seq1 ) - 1
@@ -238,17 +273,19 @@ class BinaryGraph():
                     max_coordinates += [[it, l1]]                
 
         for node in self.nodes.values():
-            if len(node.childrens) == 0:
+            if len(node.children) == 0:
                 for it in range( len(node.letter_x) ):
                     
-                    if  ( mode == "full_path"  and (l1 == len(node.letter_x[it].replace("-", "")) or l2 == len(node.letter_y[it].replace("-", "")) )) or \
-                        ( mode == "top_score" and [node.x, node.y] in max_coordinates and (l1 == len(node.letter_x[it].replace("-", "")) or l2 == len(node.letter_y[it].replace("-", "")) )) or \
+                    if  ( mode == "full_path"  and ( l1 == len( node.letter_x[it].replace("-", "") ) or l2 == len( node.letter_y[it].replace("-", "") ))) or \
+                        ( mode == "top_score" and [node.x, node.y] in max_coordinates and ( l1 == len( node.letter_x[it].replace("-", "") ) or l2 == len( node.letter_y[it].replace("-", "") ))) or \
                         ( mode == "all" ):
                             s += node.letter_x[it] + "\n" 
                             s += node.letter_y[it] + "\n"
-                            s += "score: " + str(self.scores[node.x, node.y]) + "\n\n"
+                            s += "score: " + str( self.scores[node.x, node.y] ) + "\n\n"
                         
         print(s)
+
+        return(s.split("\n\n")[0].split("\n")[:2])
 
     def printTree(self):
         '''
@@ -314,7 +351,7 @@ class Node():
 
         Node for binary graph. It stores information about
         node coordinates (in sequences plane), corresponding 
-        letters, and childrens.
+        letters, and children.
     '''
 
     def __init__(self, parent, tree, x, y):
@@ -340,7 +377,7 @@ class Node():
         self.letter_x = []
         self.letter_y = []
 
-        self.childrens = []
+        self.children = []
 
     def addLetters(self, letter_x, letter_y):
         '''
@@ -354,7 +391,7 @@ class Node():
                 None
         '''
 
-        if (letter_x not in self.letter_x) or (letter_y not in self.letter_y):
+        if letter_x not in self.letter_x or letter_y not in self.letter_y:
             self.letter_x.append(letter_x)
             self.letter_y.append(letter_y)
 
@@ -369,7 +406,7 @@ class Node():
                 None
         '''
 
-        self.childrens.append( node )
+        self.children.append( node )
         self.tree.registerNode( node )
 
     def printNode(self, heading):
@@ -385,15 +422,15 @@ class Node():
 
         print(heading, "Node", self.x, self.y, self.letter_x, self.letter_y)
 
-        l = len(self.childrens)
+        l = len(self.children)
 
         heading = heading.replace("└", "  ").replace("├", "│ ")
 
         for it in range(l):
             if(it != l - 1):
-                self.childrens[it].printNode(heading + "├")
+                self.children[it].printNode(heading + "├")
             else:
-                self.childrens[it].printNode(heading + "└")
+                self.children[it].printNode(heading + "└")
 
     def getCoordinates(self):
         '''

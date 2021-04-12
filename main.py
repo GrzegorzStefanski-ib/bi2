@@ -157,11 +157,11 @@ def main(**kwargs):
 
          \b
          # Longer version
-         python main.py --sequence1=AAA --sequence2=CCC --match_score=1 --mismatch_score=-1 --gap_score=-2 --mode=top_score
+         python main.py --sequence1=AAA --sequence2=CCC --match_score=1 --mismatch_score=-1 --gap_score=-2 --mode=top_score --print_graph=False
 
          \b
          # Shorter version
-         python main.py --s1=AAA --s2=CCC --ms=1 --mms=-1 --gs=-2 --m=top_score
+         python main.py --s1=AAA --s2=CCC --ms=1 --mms=-1 --gs=-2 --m=top_score --pg=False
 
          \b
          # You can also run this script without any arguments.
